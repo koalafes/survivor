@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="utf-8">
     <meta
@@ -56,9 +56,14 @@
         <span aria-hidden="true"></span>
       </button>
 
+      <button id="languageButton" class="language-button" type="button" aria-label="Switch language">
+        <span id="languageJa" class="language-option">JP</span>
+        <span id="languageEn" class="language-option">EN</span>
+      </button>
+
       <section id="upgradeOverlay" class="overlay hidden" aria-live="polite">
         <div class="modal">
-          <p class="eyebrow">Level Up</p>
+          <p id="upgradeEyebrow" class="eyebrow">Level Up</p>
           <h1 id="upgradeTitle">Choose Power</h1>
           <div id="upgradeCards" class="upgrade-grid"></div>
         </div>
@@ -66,15 +71,15 @@
 
       <section id="pauseOverlay" class="overlay hidden" aria-live="polite">
         <div class="modal compact-modal">
-          <p class="eyebrow">Nightfall</p>
-          <h1>Paused</h1>
+          <p id="pauseEyebrow" class="eyebrow">Nightfall</p>
+          <h1 id="pauseTitle">Paused</h1>
           <button id="resumeButton" class="command-button" type="button">Resume</button>
         </div>
       </section>
 
       <section id="gameOverOverlay" class="overlay hidden" aria-live="polite">
         <div class="modal compact-modal">
-          <p class="eyebrow">Run Complete</p>
+          <p id="resultEyebrow" class="eyebrow">Run Complete</p>
           <h1 id="resultTitle">Overrun</h1>
           <div id="resultStats" class="result-stats"></div>
           <button id="restartButton" class="command-button" type="button">Retry</button>

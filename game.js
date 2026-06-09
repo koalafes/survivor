@@ -16,15 +16,22 @@
     goldText: document.getElementById("goldText"),
     abilityBar: document.getElementById("abilityBar"),
     pauseButton: document.getElementById("pauseButton"),
+    languageButton: document.getElementById("languageButton"),
+    languageJa: document.getElementById("languageJa"),
+    languageEn: document.getElementById("languageEn"),
     touchControls: document.getElementById("touchControls"),
     joystickBase: document.getElementById("joystickBase"),
     joystickKnob: document.getElementById("joystickKnob"),
     upgradeOverlay: document.getElementById("upgradeOverlay"),
+    upgradeEyebrow: document.getElementById("upgradeEyebrow"),
     upgradeTitle: document.getElementById("upgradeTitle"),
     upgradeCards: document.getElementById("upgradeCards"),
     pauseOverlay: document.getElementById("pauseOverlay"),
+    pauseEyebrow: document.getElementById("pauseEyebrow"),
+    pauseTitle: document.getElementById("pauseTitle"),
     resumeButton: document.getElementById("resumeButton"),
     gameOverOverlay: document.getElementById("gameOverOverlay"),
+    resultEyebrow: document.getElementById("resultEyebrow"),
     resultTitle: document.getElementById("resultTitle"),
     resultStats: document.getElementById("resultStats"),
     restartButton: document.getElementById("restartButton"),
@@ -51,6 +58,72 @@
   let lastFrame = performance.now();
   let backgroundStars = [];
   let state = createState();
+  let language = getInitialLanguage();
+
+  const i18n = {
+    en: {
+      pageTitle: "Nightfall Survivors",
+      canvasAria: "Nightfall Survivors game field",
+      abilityAria: "Current abilities",
+      switchLanguage: "Switch language to Japanese",
+      pause: "Pause",
+      resume: "Resume",
+      retry: "Retry",
+      paused: "Paused",
+      pauseEyebrow: "Nightfall",
+      levelUp: "Level Up",
+      choosePower: "Choose Power",
+      level: "Level {level}",
+      levelShort: "Lv {level}",
+      damageUnit: "{value} dmg",
+      kills: "{value} KOs",
+      gold: "{value} gold",
+      resultEyebrow: "Run Complete",
+      resultOverrun: "Overrun",
+      resultNightHolds: "Night Holds",
+      elite: "Elite",
+      nightLord: "Night Lord",
+      bossDown: "Boss Down",
+      abilities: {
+        wand: "Wand",
+        sickle: "Sickle",
+        ward: "Ward",
+        magnet: "Magnet",
+        pierce: "Pierce",
+      },
+    },
+    ja: {
+      pageTitle: "ナイトフォール・サバイバーズ",
+      canvasAria: "ナイトフォール・サバイバーズのゲーム画面",
+      abilityAria: "現在のアビリティ",
+      switchLanguage: "英語に切り替え",
+      pause: "一時停止",
+      resume: "再開",
+      retry: "リトライ",
+      paused: "一時停止",
+      pauseEyebrow: "ナイトフォール",
+      levelUp: "レベルアップ",
+      choosePower: "強化を選択",
+      level: "レベル {level}",
+      levelShort: "Lv {level}",
+      damageUnit: "攻撃 {value}",
+      kills: "{value} 撃破",
+      gold: "金貨 {value}",
+      resultEyebrow: "リザルト",
+      resultOverrun: "制圧された",
+      resultNightHolds: "夜はまだ終わらない",
+      elite: "エリート",
+      nightLord: "夜の王",
+      bossDown: "ボス撃破",
+      abilities: {
+        wand: "杖",
+        sickle: "鎌",
+        ward: "結界",
+        magnet: "磁石",
+        pierce: "貫通",
+      },
+    },
+  };
 
   const upgrades = [
     {
@@ -58,6 +131,9 @@
       name: "Quickened Wand",
       badge: "Wand",
       text: "Shorter spell rhythm and tighter volleys.",
+      jaName: "速射の杖",
+      jaBadge: "杖",
+      jaText: "魔弾の間隔が短くなり、連射が安定する。",
       color: "#88c7ff",
       apply: (game) => {
         game.stats.fireRate += 0.22;
@@ -69,6 +145,9 @@
       name: "Silver Thorn",
       badge: "Damage",
       text: "Every bolt lands with more bite.",
+      jaName: "銀の棘",
+      jaBadge: "攻撃",
+      jaText: "魔弾の威力が上がる。",
       color: "#f3c45b",
       apply: (game) => {
         game.stats.damage += 4;
@@ -79,6 +158,9 @@
       name: "Fleet Boots",
       badge: "Move",
       text: "More space between you and the swarm.",
+      jaName: "疾風のブーツ",
+      jaBadge: "移動",
+      jaText: "群れとの距離を取りやすくなる。",
       color: "#43e0b7",
       apply: (game) => {
         game.stats.speed += 18;
@@ -89,6 +171,9 @@
       name: "Magnet Stone",
       badge: "Gather",
       text: "Loose shards wake up from farther away.",
+      jaName: "磁力石",
+      jaBadge: "回収",
+      jaText: "欠片が遠くから引き寄せられる。",
       color: "#ff5f86",
       apply: (game) => {
         game.stats.magnet += 42;
@@ -99,6 +184,9 @@
       name: "Blood Pact",
       badge: "Vital",
       text: "A larger health pool with an instant mend.",
+      jaName: "血の契約",
+      jaBadge: "体力",
+      jaText: "最大体力が増え、すぐに少し回復する。",
       color: "#ff6b5f",
       apply: (game) => {
         game.player.maxHealth += 18;
@@ -110,6 +198,9 @@
       name: "Piercing Hex",
       badge: "Pierce",
       text: "Bolts keep cutting through the pack.",
+      jaName: "貫通の呪い",
+      jaBadge: "貫通",
+      jaText: "魔弾が敵の群れを突き抜ける。",
       color: "#d7a7ff",
       apply: (game) => {
         game.stats.pierce += 1;
@@ -120,6 +211,9 @@
       name: "Moon Sickle",
       badge: "Orbit",
       text: "A blade circles close and clips anything greedy.",
+      jaName: "月の鎌",
+      jaBadge: "旋回",
+      jaText: "刃が周囲を回り、近づいた敵を斬る。",
       color: "#f4f2e8",
       max: (game) => game.stats.orbitals < 6,
       apply: (game) => {
@@ -131,6 +225,9 @@
       name: "Sun Ward",
       badge: "Pulse",
       text: "A brighter ward burns the nearest crowd.",
+      jaName: "太陽の結界",
+      jaBadge: "波動",
+      jaText: "明るい結界が近くの群れを焼く。",
       color: "#ffd56d",
       apply: (game) => {
         game.stats.auraDamage += 3;
@@ -143,6 +240,9 @@
       name: "Wide Sigil",
       badge: "Area",
       text: "Bolts, blades, and wards take up more room.",
+      jaName: "拡張の印",
+      jaBadge: "範囲",
+      jaText: "弾、刃、結界の範囲が広がる。",
       color: "#9df1cf",
       apply: (game) => {
         game.stats.area += 0.14;
@@ -203,6 +303,81 @@
         y: 0,
       },
     };
+  }
+
+  function getInitialLanguage() {
+    try {
+      const saved = window.localStorage.getItem("nightfall-language");
+      if (saved === "ja" || saved === "en") return saved;
+    } catch {
+      // Private browsing or file previews can block localStorage.
+    }
+    return navigator.language && navigator.language.toLowerCase().startsWith("ja") ? "ja" : "en";
+  }
+
+  function copy(key, vars = {}) {
+    const value = i18n[language][key] || i18n.en[key] || key;
+    return Object.entries(vars).reduce(
+      (result, [name, replacement]) => result.replace(`{${name}}`, replacement),
+      value,
+    );
+  }
+
+  function abilityCopy(key) {
+    return i18n[language].abilities[key] || i18n.en.abilities[key] || key;
+  }
+
+  function upgradeCopy(upgrade, field) {
+    if (language === "ja") {
+      return upgrade[`ja${field}`] || upgrade[field.toLowerCase()];
+    }
+    return upgrade[field.toLowerCase()];
+  }
+
+  function setLanguage(nextLanguage) {
+    language = nextLanguage === "ja" ? "ja" : "en";
+    try {
+      window.localStorage.setItem("nightfall-language", language);
+    } catch {
+      // The language still changes for this session if persistence is unavailable.
+    }
+
+    document.documentElement.lang = language;
+    document.title = copy("pageTitle");
+    canvas.setAttribute("aria-label", copy("canvasAria"));
+    ui.abilityBar.setAttribute("aria-label", copy("abilityAria"));
+    ui.upgradeEyebrow.textContent = copy("levelUp");
+    ui.pauseEyebrow.textContent = copy("pauseEyebrow");
+    ui.pauseTitle.textContent = copy("paused");
+    ui.resumeButton.textContent = copy("resume");
+    ui.resultEyebrow.textContent = copy("resultEyebrow");
+    ui.restartButton.textContent = copy("retry");
+    ui.languageButton.setAttribute("aria-label", copy("switchLanguage"));
+    ui.languageJa.classList.toggle("active", language === "ja");
+    ui.languageEn.classList.toggle("active", language === "en");
+    updatePauseButtonLabel();
+
+    if (state.mode === "upgrade") {
+      ui.upgradeTitle.textContent = copy("level", { level: state.level });
+      renderUpgradeCards();
+    } else {
+      ui.upgradeTitle.textContent = copy("choosePower");
+    }
+
+    if (state.mode === "over") {
+      renderResult();
+    }
+
+    ui.abilityBar.dataset.html = "";
+    updateHud(true);
+  }
+
+  function toggleLanguage() {
+    setLanguage(language === "ja" ? "en" : "ja");
+  }
+
+  function updatePauseButtonLabel() {
+    ui.pauseButton.setAttribute("aria-label", state.mode === "paused" ? copy("resume") : copy("pause"));
   }
 
   function resize() {
@@ -387,14 +562,14 @@
     if (state.eliteTimer <= 0) {
       spawnEnemy(weightedType(state.time + 40), true);
       state.eliteTimer = clamp(34 - state.time * 0.05, 17, 34);
-      addFloater(state.player.x, state.player.y - 72, "Elite", "#f3c45b");
+      addFloater(state.player.x, state.player.y - 72, copy("elite"), "#f3c45b");
     }
 
     if (!state.bossSpawned && state.time >= 90) {
       state.bossSpawned = true;
       spawnEnemy("boss", true);
       state.shake = 1;
-      addFloater(state.player.x, state.player.y - 88, "Night Lord", "#ff6b5f");
+      addFloater(state.player.x, state.player.y - 88, copy("nightLord"), "#ff6b5f");
     }
   }
 
@@ -636,7 +811,7 @@
       for (let i = 0; i < 18; i += 1) {
         dropGem(enemy.x + randRange(-40, 40), enemy.y + randRange(-40, 40), 18 + Math.floor(Math.random() * 12));
       }
-      addFloater(enemy.x, enemy.y - 60, "Boss Down", "#f3c45b");
+      addFloater(enemy.x, enemy.y - 60, copy("bossDown"), "#f3c45b");
     }
   }
 
@@ -723,7 +898,17 @@
     resetPointer();
     state.levelQueue -= 1;
     state.upgradeChoices = rollUpgrades();
-    ui.upgradeTitle.textContent = `Level ${state.level}`;
+    ui.upgradeTitle.textContent = copy("level", { level: state.level });
+    renderUpgradeCards();
+    ui.upgradeOverlay.classList.remove("hidden");
+    requestAnimationFrame(() => {
+      const first = ui.upgradeCards.querySelector("button");
+      if (first) first.focus();
+    });
+    updateHud();
+  }
+
+  function renderUpgradeCards() {
     ui.upgradeCards.innerHTML = "";
 
     for (const upgrade of state.upgradeChoices) {
@@ -732,20 +917,13 @@
       button.type = "button";
       button.style.setProperty("--accent", upgrade.color);
       button.innerHTML = `
-        <span class="upgrade-badge" style="background:${upgrade.color}">${upgrade.badge}</span>
-        <strong>${upgrade.name}</strong>
-        <p>${upgrade.text}</p>
+        <span class="upgrade-badge" style="background:${upgrade.color}">${upgradeCopy(upgrade, "Badge")}</span>
+        <strong>${upgradeCopy(upgrade, "Name")}</strong>
+        <p>${upgradeCopy(upgrade, "Text")}</p>
       `;
       button.addEventListener("click", () => chooseUpgrade(upgrade));
       ui.upgradeCards.appendChild(button);
     }
-
-    ui.upgradeOverlay.classList.remove("hidden");
-    requestAnimationFrame(() => {
-      const first = ui.upgradeCards.querySelector("button");
-      if (first) first.focus();
-    });
-    updateHud();
   }
 
   function rollUpgrades() {
@@ -763,7 +941,7 @@
     upgrade.apply(state);
     ui.upgradeOverlay.classList.add("hidden");
     state.flash = Math.max(state.flash, 0.22);
-    addFloater(state.player.x, state.player.y - 72, upgrade.badge, upgrade.color);
+    addFloater(state.player.x, state.player.y - 72, upgradeCopy(upgrade, "Badge"), upgrade.color);
     burst(state.player.x, state.player.y, upgrade.color, 18, 0.54);
 
     if (state.levelQueue > 0) {
@@ -840,14 +1018,19 @@
     resetPointer();
     ui.upgradeOverlay.classList.add("hidden");
     ui.pauseOverlay.classList.add("hidden");
-    ui.resultTitle.textContent = state.time >= 90 && state.bossSpawned ? "Night Holds" : "Overrun";
+    renderResult();
+    ui.gameOverOverlay.classList.remove("hidden");
+  }
+
+  function renderResult() {
+    ui.resultTitle.textContent =
+      state.time >= 90 && state.bossSpawned ? copy("resultNightHolds") : copy("resultOverrun");
     ui.resultStats.innerHTML = `
       <span>${formatTime(state.time)}</span>
-      <span>Lv ${state.level}</span>
-      <span>${state.kills} KOs</span>
-      <span>${state.gold} gold</span>
+      <span>${copy("levelShort", { level: state.level })}</span>
+      <span>${copy("kills", { value: state.kills })}</span>
+      <span>${copy("gold", { value: state.gold })}</span>
     `;
-    ui.gameOverOverlay.classList.remove("hidden");
   }
 
   function togglePause(force) {
@@ -856,7 +1039,7 @@
     state.mode = pause ? "paused" : "running";
     if (pause) resetPointer();
     ui.pauseOverlay.classList.toggle("hidden", !pause);
-    ui.pauseButton.setAttribute("aria-label", pause ? "Resume" : "Pause");
+    updatePauseButtonLabel();
   }
 
   function restart() {
@@ -866,6 +1049,7 @@
     ui.gameOverOverlay.classList.add("hidden");
     ui.pauseOverlay.classList.add("hidden");
     ui.upgradeOverlay.classList.add("hidden");
+    updatePauseButtonLabel();
     updateHud(true);
     lastFrame = performance.now();
   }
@@ -1446,25 +1630,25 @@
 
     const healthRatio = clamp(state.player.health / state.player.maxHealth, 0, 1);
     const xpRatio = clamp(state.xp / state.xpToNext, 0, 1);
-    ui.levelText.textContent = `Lv ${state.level}`;
+    ui.levelText.textContent = copy("levelShort", { level: state.level });
     ui.xpText.textContent = `${Math.floor(state.xp)} / ${state.xpToNext}`;
     ui.xpFill.style.width = `${xpRatio * 100}%`;
     ui.healthText.textContent = `${Math.ceil(state.player.health)} / ${state.player.maxHealth}`;
     ui.healthFill.style.width = `${healthRatio * 100}%`;
-    ui.weaponText.textContent = `${Math.round(state.stats.damage)} dmg`;
+    ui.weaponText.textContent = copy("damageUnit", { value: Math.round(state.stats.damage) });
     ui.timeText.textContent = formatTime(state.time);
-    ui.killText.textContent = `${state.kills} KOs`;
-    ui.goldText.textContent = `${state.gold} gold`;
+    ui.killText.textContent = copy("kills", { value: state.kills });
+    ui.goldText.textContent = copy("gold", { value: state.gold });
     renderAbilityBar();
   }
 
   function renderAbilityBar() {
     const items = [
-      { name: "Wand", value: `${state.stats.fireRate.toFixed(1)}x`, color: "#88c7ff" },
-      { name: "Sickle", value: `${state.stats.orbitals}`, color: "#f4f2e8" },
-      { name: "Ward", value: `${Math.round(state.stats.auraRadius)}`, color: "#f3c45b" },
-      { name: "Magnet", value: `${Math.round(state.stats.magnet)}`, color: "#43e0b7" },
-      { name: "Pierce", value: `${state.stats.pierce}`, color: "#d7a7ff" },
+      { name: abilityCopy("wand"), value: `${state.stats.fireRate.toFixed(1)}x`, color: "#88c7ff" },
+      { name: abilityCopy("sickle"), value: `${state.stats.orbitals}`, color: "#f4f2e8" },
+      { name: abilityCopy("ward"), value: `${Math.round(state.stats.auraRadius)}`, color: "#f3c45b" },
+      { name: abilityCopy("magnet"), value: `${Math.round(state.stats.magnet)}`, color: "#43e0b7" },
+      { name: abilityCopy("pierce"), value: `${state.stats.pierce}`, color: "#d7a7ff" },
     ];
 
     const html = items
@@ -1526,10 +1710,12 @@
   window.addEventListener("pointercancel", endPointer);
 
   ui.pauseButton.addEventListener("click", () => togglePause());
+  ui.languageButton.addEventListener("click", toggleLanguage);
   ui.resumeButton.addEventListener("click", () => togglePause(false));
   ui.restartButton.addEventListener("click", restart);
 
   resize();
+  setLanguage(language);
   updateHud(true);
   requestAnimationFrame(loop);
 })();
