@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+    >
+    <title>Nightfall Survivors</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="game-shell">
+      <canvas id="gameCanvas" aria-label="Nightfall Survivors game field"></canvas>
+
+      <section class="hud hud-top">
+        <div class="hud-panel player-panel">
+          <div class="stat-row">
+            <span id="levelText">Lv 1</span>
+            <span id="xpText">0 / 18</span>
+          </div>
+          <div class="bar xp-bar" aria-hidden="true">
+            <span id="xpFill"></span>
+          </div>
+          <div class="stat-row">
+            <span id="healthText">100</span>
+            <span id="weaponText">Wand</span>
+          </div>
+          <div class="bar health-bar" aria-hidden="true">
+            <span id="healthFill"></span>
+          </div>
+        </div>
+
+        <div class="hud-panel timer-panel">
+          <span id="timeText">00:00</span>
+        </div>
+
+        <div class="hud-panel score-panel">
+          <span id="killText">0 KOs</span>
+          <span id="goldText">0 gold</span>
+        </div>
+      </section>
+
+      <section class="hud hud-bottom">
+        <div id="abilityBar" class="ability-bar" aria-label="Current abilities"></div>
+      </section>
+
+      <div id="touchControls" class="touch-controls" aria-hidden="true">
+        <div id="joystickBase" class="joystick-base">
+          <div id="joystickKnob" class="joystick-knob"></div>
+        </div>
+      </div>
+
+      <button id="pauseButton" class="icon-button pause-button" type="button" aria-label="Pause">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+
+      <section id="upgradeOverlay" class="overlay hidden" aria-live="polite">
+        <div class="modal">
+          <p class="eyebrow">Level Up</p>
+          <h1 id="upgradeTitle">Choose Power</h1>
+          <div id="upgradeCards" class="upgrade-grid"></div>
+        </div>
+      </section>
+
+      <section id="pauseOverlay" class="overlay hidden" aria-live="polite">
+        <div class="modal compact-modal">
+          <p class="eyebrow">Nightfall</p>
+          <h1>Paused</h1>
+          <button id="resumeButton" class="command-button" type="button">Resume</button>
+        </div>
+      </section>
+
+      <section id="gameOverOverlay" class="overlay hidden" aria-live="polite">
+        <div class="modal compact-modal">
+          <p class="eyebrow">Run Complete</p>
+          <h1 id="resultTitle">Overrun</h1>
+          <div id="resultStats" class="result-stats"></div>
+          <button id="restartButton" class="command-button" type="button">Retry</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
