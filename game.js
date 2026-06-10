@@ -75,6 +75,8 @@
       choosePower: "Choose Power",
       level: "Level {level}",
       levelShort: "Lv {level}",
+      upgradeLevel: "Lv {current} -> {next}",
+      upgradeLevelMax: "Lv {current} -> {next} / {max}",
       damageUnit: "{value} dmg",
       kills: "{value} KOs",
       gold: "{value} gold",
@@ -106,6 +108,8 @@
       choosePower: "強化を選択",
       level: "レベル {level}",
       levelShort: "Lv {level}",
+      upgradeLevel: "Lv {current} → {next}",
+      upgradeLevelMax: "Lv {current} → {next} / {max}",
       damageUnit: "攻撃 {value}",
       kills: "{value} 撃破",
       gold: "金貨 {value}",
@@ -215,7 +219,8 @@
       jaBadge: "旋回",
       jaText: "刃が周囲を回り、近づいた敵を斬る。",
       color: "#f4f2e8",
-      max: (game) => game.stats.orbitals < 6,
+      maxLevel: 5,
+      max: (game) => (game.upgradeLevels.sickle || 0) < 5,
       apply: (game) => {
         game.stats.orbitals += 1;
       },
@@ -260,6 +265,7 @@
       xp: 0,
       xpToNext: 18,
       levelQueue: 0,
+      upgradeLevels: {},
       upgradeChoices: [],
       enemies: [],
       projectiles: [],
@@ -332,6 +338,19 @@
       return upgrade[`ja${field}`] || upgrade[field.toLowerCase()];
     }
     return upgrade[field.toLowerCase()];
+  }
+
+  function upgradeLevel(upgrade) {
+    return state.upgradeLevels[upgrade.id] || 0;
+  }
+
+  function upgradeLevelCopy(upgrade) {
+    const current = upgradeLevel(upgrade);
+    const next = current + 1;
+    if (upgrade.maxLevel) {
+      return copy("upgradeLevelMax", { current, next, max: upgrade.maxLevel });
+    }
+    return copy("upgradeLevel", { current, next });
   }
 
   function setLanguage(nextLanguage) {
@@ -917,7 +936,10 @@
       button.type = "button";
       button.style.setProperty("--accent", upgrade.color);
       button.innerHTML = `
-        <span class="upgrade-badge" style="background:${upgrade.color}">${upgradeCopy(upgrade, "Badge")}</span>
+        <span class="upgrade-card-top">
+          <span class="upgrade-badge" style="background:${upgrade.color}">${upgradeCopy(upgrade, "Badge")}</span>
+          <span class="upgrade-level">${upgradeLevelCopy(upgrade)}</span>
+        </span>
         <strong>${upgradeCopy(upgrade, "Name")}</strong>
         <p>${upgradeCopy(upgrade, "Text")}</p>
       `;
@@ -939,6 +961,7 @@
 
   function chooseUpgrade(upgrade) {
     upgrade.apply(state);
+    state.upgradeLevels[upgrade.id] = upgradeLevel(upgrade) + 1;
     ui.upgradeOverlay.classList.add("hidden");
     state.flash = Math.max(state.flash, 0.22);
     addFloater(state.player.x, state.player.y - 72, upgradeCopy(upgrade, "Badge"), upgrade.color);
