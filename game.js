@@ -229,15 +229,17 @@
       id: "ward",
       name: "Sun Ward",
       badge: "Pulse",
-      text: "A brighter ward burns the nearest crowd.",
+      text: "A brighter ward burns nearby crowds faster and shoves them back.",
       jaName: "太陽の結界",
       jaBadge: "波動",
-      jaText: "明るい結界が近くの群れを焼く。",
+      jaText: "結界の波動が強まり、群れを押し返しながら焼く。",
       color: "#ffd56d",
       apply: (game) => {
-        game.stats.auraDamage += 3;
-        game.stats.auraRadius += 8;
-        game.cooldowns.aura = Math.min(game.cooldowns.aura, 0.25);
+        game.stats.auraDamage += 5;
+        game.stats.auraRadius += 11;
+        game.stats.auraInterval = Math.max(1.1, game.stats.auraInterval - 0.2);
+        game.stats.auraKnockback += 8;
+        game.cooldowns.aura = Math.min(game.cooldowns.aura, 0.18);
       },
     },
     {
@@ -297,8 +299,10 @@
         magnet: 108,
         area: 1,
         orbitals: 1,
-        auraDamage: 7,
-        auraRadius: 118,
+        auraDamage: 9,
+        auraRadius: 122,
+        auraInterval: 2.35,
+        auraKnockback: 10,
       },
       cooldowns: {
         wand: 0,
@@ -686,7 +690,7 @@
     }
 
     state.cooldowns.aura -= dt;
-    const auraDelay = clamp(2.5 - state.level * 0.018, 1.65, 2.5);
+    const auraDelay = clamp(state.stats.auraInterval - state.level * 0.018, 1.05, state.stats.auraInterval);
     if (state.cooldowns.aura <= 0) {
       pulseAura();
       state.cooldowns.aura += auraDelay;
@@ -696,6 +700,7 @@
   function pulseAura() {
     const radius = state.stats.auraRadius * state.stats.area;
     const damage = state.stats.auraDamage + state.level * 0.38;
+    const knockback = state.stats.auraKnockback * state.stats.area;
     state.particles.push({
       type: "ring",
       x: state.player.x,
@@ -709,6 +714,14 @@
 
     for (const enemy of state.enemies) {
       if (distance(state.player.x, state.player.y, enemy.x, enemy.y) <= radius + enemy.radius) {
+        const dx = enemy.x - state.player.x;
+        const dy = enemy.y - state.player.y;
+        const len = Math.hypot(dx, dy);
+        const angle = len > 0 ? Math.atan2(dy, dx) : state.time;
+        const pressure = 1 - Math.min(1, len / (radius + enemy.radius));
+        const shove = knockback * (0.7 + pressure * 0.8);
+        enemy.x += Math.cos(angle) * shove;
+        enemy.y += Math.sin(angle) * shove;
         damageEnemy(enemy, damage, "#f3c45b");
       }
     }
